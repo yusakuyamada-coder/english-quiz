@@ -1,0 +1,262 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic', sans-serif; background: #0f0c29; }
+  button { cursor: pointer; border: none; background: none; font-family: inherit; }
+  .fade-in { animation: fadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  .pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
+  @keyframes pulseGlow { 0%,100% { filter: drop-shadow(0 0 20px rgba(255,107,53,0.5)); } 50% { filter: drop-shadow(0 0 35px rgba(155,89,182,0.7)); } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const { useState, useEffect } = React;
+
+const TYPES = {
+  survivor: {
+    id:"survivor", label:"実践サバイバー型", emoji:"⚡", color:"#FF6B35", tagline:"即戦力重視・フレーズ暗記派",
+    description:"あなたはとにかく「使える英語」を求める行動派！旅行・仕事・日常シーンで即役立つフレーズを身体で覚えるのが得意です。完璧な文法より「伝わること」を優先し、失敗を恐れずどんどん話せるポテンシャルを持っています。",
+    tips:["📱 Duolingo・Ankiで毎日5分フレーズ暗記","🎙️ シャドーイングで口を慣らす（NHKラジオ英会話が◎）","✈️ ハロートーク等で海外の人と短文チャット","🗒️ 「使いたいフレーズ帳」を作ってすぐ見返す"],
+  },
+  analyst: {
+    id:"analyst", label:"理論アナリスト型", emoji:"🔬", color:"#4A90D9", tagline:"文法重視・論理理解派",
+    description:"あなたは「なぜそう言うのか」を理解してから進む知的な学習者。文法の仕組みを把握することで応用力が高まり、読む・書く力に特に強みが出ます。一度理解した知識は長く定着するタイプです。",
+    tips:["📚 「一億人の英文法」など体系的な文法書を熟読","🗞️ BBC / The Economist で精読練習","✍️ 英文ライティングの添削（HiNative・Lang-8）","🧩 語源・派生語を辞書で深掘りする習慣を"],
+  },
+  immersion: {
+    id:"immersion", label:"没入イマージョン型", emoji:"🌊", color:"#2ECC71", tagline:"エンタメ重視・自然吸収派",
+    description:"あなたは好きなコンテンツを通じて自然に英語を吸収するセンス派！ドラマ・音楽・ゲームが学習ツールになります。量を浴び続けることでリスニング力とボキャブラリーが自然と伸びていきます。",
+    tips:["🎬 Netflixを英語字幕→字幕なしで段階的に視聴","🎵 好きな洋楽の歌詞を追いながら聴く","🎮 ゲームやYouTubeを英語UIに切り替える","📖 好きなジャンルの洋書ペーパーバックに挑戦"],
+  },
+  catalyst: {
+    id:"catalyst", label:"社交カタリスト型", emoji:"🔥", color:"#9B59B6", tagline:"交流重視・アウトプット派",
+    description:"あなたは人とのつながりからエネルギーを得る社交型学習者！英語を「人と話すためのツール」として捉え、アウトプットの機会が増えるほど上達が加速します。オンライン英会話やコミュニティが最高の教材です。",
+    tips:["💬 Cambly・DMM英会話で毎日25分フリートーク","🌐 Meetupで外国人参加のイベントに参加","📣 英語SNS（X・Reddit）で発信を習慣化","🤝 英語学習コミュニティで仲間を作る"],
+  },
+};
+
+const QUESTIONS = [
+  { id:1, text:"英語がペラペラになったら、まず何がしたい？", choices:[
+    {label:"一人で海外旅行して自由に動き回りたい", type:"survivor"},
+    {label:"原書・論文をスラスラ読んで知識を深めたい", type:"analyst"},
+    {label:"外国人の友だちをたくさん作りたい", type:"catalyst"},
+  ]},
+  { id:2, text:"英語の勉強でいちばん続けやすいのは？", choices:[
+    {label:"アプリで単語・フレーズを毎日コツコツ", type:"survivor"},
+    {label:"文法書や参考書を読み込む", type:"analyst"},
+    {label:"海外ドラマや音楽を楽しみながら", type:"immersion"},
+    {label:"オンライン英会話で実際に話す", type:"catalyst"},
+  ]},
+  { id:3, text:"知らない英単語に出会ったとき、あなたは？", choices:[
+    {label:"文脈からなんとなく推測してスルー", type:"immersion"},
+    {label:"すぐ辞書で意味・語源まで調べる", type:"analyst"},
+    {label:"フレーズごと丸暗記してしまう", type:"survivor"},
+    {label:"ネイティブの友人に聞いてみる", type:"catalyst"},
+  ]},
+  { id:4, text:"英語学習のモチベが上がるのはどんな時？", choices:[
+    {label:"外国人に「上手！」と褒められた瞬間", type:"catalyst"},
+    {label:"文法の謎が解けてスッキリした瞬間", type:"analyst"},
+    {label:"好きな作品を英語で理解できた瞬間", type:"immersion"},
+  ]},
+  { id:5, text:"理想の英語学習スタイルに近いのは？", choices:[
+    {label:"短期集中！旅行前に必要フレーズだけ詰め込む", type:"survivor"},
+    {label:"週1回ペースで文法を体系的に学ぶ", type:"analyst"},
+    {label:"毎日英語コンテンツに浸る生活を送る", type:"immersion"},
+    {label:"毎週ネイティブと会話して慣れていく", type:"catalyst"},
+  ]},
+];
+
+function calcResult(answers) {
+  const score = {survivor:0,analyst:0,immersion:0,catalyst:0};
+  answers.forEach(t => { if(t) score[t]++; });
+  return Object.entries(score).sort((a,b)=>b[1]-a[1])[0][0];
+}
+
+function ProgressBar({current,total}) {
+  const pct = Math.round(current/total*100);
+  return React.createElement('div',{style:{width:'100%',marginBottom:20}},
+    React.createElement('div',{style:{display:'flex',justifyContent:'space-between',fontSize:11,color:'rgba(255,255,255,0.45)',marginBottom:6}},
+      React.createElement('span',null,`Q${current} / ${total}`),
+      React.createElement('span',null,`${pct}%`)
+    ),
+    React.createElement('div',{style:{height:6,borderRadius:99,background:'rgba(255,255,255,0.1)',overflow:'hidden'}},
+      React.createElement('div',{style:{height:6,borderRadius:99,width:`${pct}%`,background:'linear-gradient(90deg,#FF6B35,#9B59B6)',transition:'width 0.7s cubic-bezier(0.16,1,0.3,1)'}})
+    )
+  );
+}
+
+function StartScreen({onStart}) {
+  return React.createElement('div',{
+    className:'fade-in',
+    style:{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'100vh',padding:'40px 24px',background:'linear-gradient(135deg,#0f0c29,#302b63,#24243e)',position:'relative',overflow:'hidden'}
+  },
+    React.createElement('div',{style:{position:'absolute',top:'-15%',right:'-15%',width:320,height:320,borderRadius:'50%',background:'radial-gradient(circle,rgba(255,107,53,0.2) 0%,transparent 70%)',pointerEvents:'none'}}),
+    React.createElement('div',{style:{position:'absolute',bottom:'-10%',left:'-10%',width:260,height:260,borderRadius:'50%',background:'radial-gradient(circle,rgba(155,89,182,0.25) 0%,transparent 70%)',pointerEvents:'none'}}),
+    React.createElement('div',{style:{textAlign:'center',maxWidth:360,position:'relative',zIndex:1}},
+      React.createElement('div',{className:'pulse-glow',style:{fontSize:64,marginBottom:20}}, '🧭'),
+      React.createElement('h1',{style:{color:'white',fontWeight:900,fontSize:'clamp(1.6rem,6vw,2.4rem)',lineHeight:1.25,letterSpacing:'-0.02em',marginBottom:12,fontFamily:'Georgia,serif'}},
+        'あなたの英語学習\nタイプは？'
+      ),
+      React.createElement('p',{style:{color:'rgba(255,255,255,0.45)',fontSize:10,letterSpacing:'0.2em',marginBottom:8}},'ENGLISH LEARNER TYPE TEST'),
+      React.createElement('p',{style:{color:'rgba(255,255,255,0.65)',lineHeight:1.85,fontSize:'0.9rem',marginBottom:36}},
+        '5つの質問に答えるだけで、あなたに\nぴったりの英語学習スタイルがわかります。'
+      ),
+      React.createElement('button',{
+        onClick:onStart,
+        style:{background:'linear-gradient(135deg,#FF6B35,#9B59B6)',color:'white',fontWeight:700,fontSize:'1rem',padding:'14px 40px',borderRadius:20,boxShadow:'0 8px 32px rgba(255,107,53,0.4)',letterSpacing:'0.05em',transition:'transform 0.2s',cursor:'pointer',border:'none'},
+        onMouseEnter:e=>e.target.style.transform='scale(1.05)',
+        onMouseLeave:e=>e.target.style.transform='scale(1)',
+      }, '診断を始める →'),
+      React.createElement('div',{style:{display:'flex',justifyContent:'center',gap:24,marginTop:32}},
+        Object.values(TYPES).map(t=>
+          React.createElement('div',{key:t.id,style:{display:'flex',flexDirection:'column',alignItems:'center',gap:4}},
+            React.createElement('span',{style:{fontSize:24}}),
+            React.createElement('span',{style:{fontSize:10,color:'rgba(255,255,255,0.3)'}},t.emoji)
+          )
+        )
+      )
+    )
+  );
+}
+
+function QuestionScreen({question,qIndex,total,onAnswer}) {
+  const [chosen,setChosen] = useState(null);
+  const [animating,setAnimating] = useState(false);
+  const [visible,setVisible] = useState(false);
+
+  useEffect(()=>{ setChosen(null); setVisible(false); setTimeout(()=>setVisible(true),50); },[question.id]);
+
+  function handleChoose(choice) {
+    if(animating||chosen) return;
+    setChosen(choice.type);
+    setAnimating(true);
+    setTimeout(()=>{ onAnswer(choice.type); setAnimating(false); },400);
+  }
+
+  const labels = ['A','B','C','D'];
+  return React.createElement('div',{
+    style:{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'100vh',padding:'32px 20px',background:'linear-gradient(135deg,#0f0c29,#302b63,#24243e)'}
+  },
+    React.createElement('div',{
+      style:{width:'100%',maxWidth:420,opacity:visible?1:0,transform:visible?'translateY(0)':'translateY(16px)',transition:'all 0.5s cubic-bezier(0.16,1,0.3,1)'}
+    },
+      React.createElement(ProgressBar,{current:qIndex+1,total}),
+      React.createElement('div',{style:{borderRadius:24,padding:'24px 24px 20px',marginBottom:16,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',backdropFilter:'blur(10px)'}},
+        React.createElement('p',{style:{color:'rgba(255,255,255,0.4)',fontSize:11,letterSpacing:'0.2em',marginBottom:8}},`Q${question.id}`),
+        React.createElement('h2',{style:{color:'white',fontWeight:700,fontSize:'1.1rem',lineHeight:1.65,fontFamily:'Georgia,serif'}},question.text)
+      ),
+      React.createElement('div',{style:{display:'flex',flexDirection:'column',gap:10}},
+        question.choices.map((choice,i)=>{
+          const t = TYPES[choice.type];
+          const isChosen = chosen===choice.type;
+          return React.createElement('button',{
+            key:i,
+            onClick:()=>handleChoose(choice),
+            disabled:!!animating,
+            style:{
+              width:'100%',textAlign:'left',borderRadius:18,padding:'14px 18px',
+              background:isChosen?`linear-gradient(135deg,${t.color}22,${t.color}44)`:'rgba(255,255,255,0.06)',
+              border:`2px solid ${isChosen?t.color:'rgba(255,255,255,0.1)'}`,
+              color:'white',fontSize:'0.9rem',fontWeight:500,lineHeight:1.5,
+              transform:isChosen?'scale(1.02)':'scale(1)',
+              boxShadow:isChosen?`0 4px 20px ${t.color}44`:'none',
+              transition:'all 0.25s ease',cursor:'pointer',
+            }
+          },
+            React.createElement('span',{style:{color:isChosen?t.color:'rgba(255,255,255,0.35)',marginRight:10,fontSize:'0.8rem',fontWeight:700}},labels[i]),
+            choice.label
+          );
+        })
+      )
+    )
+  );
+}
+
+function ResultScreen({resultKey,onRetry}) {
+  const t = TYPES[resultKey];
+  const [visible,setVisible] = useState(false);
+  useEffect(()=>{ setTimeout(()=>setVisible(true),80); },[]);
+
+  return React.createElement('div',{
+    style:{display:'flex',flexDirection:'column',alignItems:'center',minHeight:'100vh',padding:'40px 20px 60px',background:'linear-gradient(135deg,#0f0c29,#302b63,#24243e)',position:'relative',overflow:'hidden'}
+  },
+    React.createElement('div',{style:{position:'fixed',top:'20%',left:'50%',transform:'translateX(-50%)',width:400,height:400,borderRadius:'50%',background:`radial-gradient(circle,${t.color}22 0%,transparent 70%)`,pointerEvents:'none'}}),
+    React.createElement('div',{
+      style:{width:'100%',maxWidth:440,opacity:visible?1:0,transform:visible?'translateY(0)':'translateY(28px)',transition:'all 0.7s cubic-bezier(0.16,1,0.3,1)',position:'relative',zIndex:1}
+    },
+      // header
+      React.createElement('div',{style:{textAlign:'center',marginBottom:28}},
+        React.createElement('div',{style:{fontSize:64,marginBottom:12,filter:`drop-shadow(0 0 28px ${t.color}99)`}},t.emoji),
+        React.createElement('div',{style:{color:'rgba(255,255,255,0.4)',fontSize:10,letterSpacing:'0.25em',marginBottom:6}},'YOUR TYPE'),
+        React.createElement('h2',{style:{color:'white',fontWeight:900,fontSize:'clamp(1.4rem,6vw,2rem)',fontFamily:'Georgia,serif',marginBottom:10}},t.label),
+        React.createElement('span',{style:{display:'inline-block',padding:'6px 18px',borderRadius:999,fontSize:'0.78rem',fontWeight:600,background:`${t.color}22`,color:t.color,border:`1px solid ${t.color}44`}},t.tagline)
+      ),
+      // desc
+      React.createElement('div',{style:{borderRadius:24,padding:22,marginBottom:14,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)'}},
+        React.createElement('h3',{style:{color:t.color,fontWeight:700,fontSize:'0.75rem',letterSpacing:'0.2em',marginBottom:12}}, '✦ あなたの特徴'),
+        React.createElement('p',{style:{color:'rgba(255,255,255,0.8)',lineHeight:1.9,fontSize:'0.88rem'}},t.description)
+      ),
+      // tips
+      React.createElement('div',{style:{borderRadius:24,padding:22,marginBottom:24,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)'}},
+        React.createElement('h3',{style:{color:t.color,fontWeight:700,fontSize:'0.75rem',letterSpacing:'0.2em',marginBottom:14}}, '✦ おすすめ学習アクション'),
+        React.createElement('ul',{style:{listStyle:'none',display:'flex',flexDirection:'column',gap:12}},
+          t.tips.map((tip,i)=>
+            React.createElement('li',{key:i,style:{display:'flex',alignItems:'flex-start',gap:12,color:'rgba(255,255,255,0.8)',fontSize:'0.87rem',lineHeight:1.7}},
+              React.createElement('span',{style:{flexShrink:0,width:22,height:22,borderRadius:'50%',background:`${t.color}33`,color:t.color,fontSize:'0.7rem',fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',marginTop:2}},i+1),
+              tip
+            )
+          )
+        )
+      ),
+      // retry
+      React.createElement('button',{
+        onClick:onRetry,
+        style:{width:'100%',borderRadius:18,padding:'15px',fontWeight:700,fontSize:'1rem',color:'white',background:`linear-gradient(135deg,${t.color},#9B59B6)`,boxShadow:`0 8px 32px ${t.color}44`,border:'none',cursor:'pointer',marginBottom:16,transition:'transform 0.2s'},
+        onMouseEnter:e=>e.currentTarget.style.transform='scale(1.03)',
+        onMouseLeave:e=>e.currentTarget.style.transform='scale(1)',
+      }, 'もう一度診断する 🔄'),
+      React.createElement('div',{style:{display:'flex',gap:10}},
+        Object.values(TYPES).filter(x=>x.id!==resultKey).map(other=>
+          React.createElement('div',{key:other.id,style:{flex:1,borderRadius:16,padding:'12px 8px',textAlign:'center',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)'}},
+            React.createElement('div',{style:{fontSize:22,marginBottom:4}},other.emoji),
+            React.createElement('div',{style:{color:'rgba(255,255,255,0.35)',fontSize:'0.6rem'}},other.label)
+          )
+        )
+      ),
+      React.createElement('p',{style:{color:'rgba(255,255,255,0.25)',fontSize:'0.6rem',textAlign:'center',marginTop:8}},'他のタイプ')
+    )
+  );
+}
+
+function App() {
+  const [phase,setPhase] = useState('start');
+  const [qIndex,setQIndex] = useState(0);
+  const [answers,setAnswers] = useState([]);
+
+  function handleStart(){ setPhase('quiz'); setQIndex(0); setAnswers([]); }
+  function handleAnswer(type){
+    const next=[...answers,type];
+    setAnswers(next);
+    if(qIndex+1<QUESTIONS.length){ setQIndex(qIndex+1); }
+    else{ setPhase('result'); }
+  }
+  function handleRetry(){ setPhase('start'); setAnswers([]); setQIndex(0); }
+
+  if(phase==='start') return React.createElement(StartScreen,{onStart:handleStart});
+  if(phase==='quiz') return React.createElement(QuestionScreen,{question:QUESTIONS[qIndex],qIndex,total:QUESTIONS.length,onAnswer:handleAnswer});
+  return React.createElement(ResultScreen,{resultKey:calcResult(answers),onRetry:handleRetry});
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>
