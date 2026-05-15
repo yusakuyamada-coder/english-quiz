@@ -1,262 +1,229 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic', sans-serif; background: #0f0c29; }
-  button { cursor: pointer; border: none; background: none; font-family: inherit; }
-  .fade-in { animation: fadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both; }
-  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-  .pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
-  @keyframes pulseGlow { 0%,100% { filter: drop-shadow(0 0 20px rgba(255,107,53,0.5)); } 50% { filter: drop-shadow(0 0 35px rgba(155,89,182,0.7)); } }
+  :root {
+    --rose:#C9848A; --blush:#E8B4B8; --sage:#8EA89A; --sage-lt:#B8CCBF;
+    --sand:#C4A882; --sand-lt:#DEC9A8; --lav:#A898C0; --lav-lt:#C8BCDA;
+    --cream:#F5EFE6; --warm:#F0E6D3; --bg:#FBF7F2; --text:#4A3F38; --text-lt:#8C7B72;
+    --card:rgba(255,255,255,0.88); --border:rgba(180,155,135,0.22);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Hiragino Maru Gothic Pro','Yu Gothic',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+  button{cursor:pointer;border:none;background:none;font-family:inherit;}
+  a{text-decoration:none;}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23C4A882' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+  @keyframes shimmer{0%{background-position:200% center;}100%{background-position:-200% center;}}
+  @keyframes confetti{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(150px) rotate(720deg);opacity:0;}}
+  @keyframes staggerIn{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:translateX(0);}}
+  .fade-up{animation:fadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both;}
+  .fade-in{animation:fadeIn 0.5s ease both;}
+
+  .blob{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(55px);}
+  .blob-1{width:280px;height:280px;top:-70px;right:-70px;background:rgba(201,132,138,0.16);}
+  .blob-2{width:240px;height:240px;bottom:-50px;left:-50px;background:rgba(142,168,154,0.16);}
+  .blob-3{width:160px;height:160px;top:45%;left:-30px;background:rgba(196,168,130,0.14);}
+
+  .screen{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 18px;}
+
+  /* START */
+  .start-card{background:var(--card);border-radius:28px;padding:40px 30px 36px;max-width:390px;width:100%;text-align:center;box-shadow:0 16px 50px rgba(180,140,110,0.16),0 2px 0 rgba(255,255,255,0.9) inset;border:1px solid var(--border);backdrop-filter:blur(12px);}
+  .start-hero{font-size:60px;display:block;margin-bottom:14px;animation:float 4s ease-in-out infinite;}
+  .start-tag{display:inline-block;background:linear-gradient(135deg,var(--rose),var(--sand));color:white;font-size:9px;letter-spacing:0.22em;padding:5px 15px;border-radius:99px;margin-bottom:13px;font-weight:700;}
+  .start-title{font-size:clamp(1.3rem,5vw,1.75rem);font-weight:700;color:var(--text);line-height:1.5;letter-spacing:-0.01em;margin-bottom:13px;}
+  .start-sub{color:var(--text-lt);font-size:0.845rem;line-height:1.9;margin-bottom:26px;}
+  .start-btn{display:inline-block;background:linear-gradient(135deg,#C9848A 0%,#C4A882 50%,#8EA89A 100%);background-size:200% auto;color:white;font-weight:700;font-size:0.95rem;padding:15px 40px;border-radius:99px;box-shadow:0 7px 24px rgba(201,132,138,0.35);transition:all 0.3s ease;letter-spacing:0.05em;animation:shimmer 4s linear infinite;border:none;cursor:pointer;}
+  .start-btn:hover{transform:translateY(-2px) scale(1.04);}
+  .type-chips{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin-top:24px;}
+  .chip{background:var(--warm);border-radius:99px;padding:5px 10px;font-size:0.65rem;color:var(--text-lt);}
+
+  /* PROGRESS */
+  .prog-wrap{width:100%;max-width:450px;margin-bottom:16px;}
+  .prog-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--text-lt);margin-bottom:5px;}
+  .prog-track{height:6px;border-radius:99px;background:rgba(180,150,130,0.18);overflow:hidden;}
+  .prog-fill{height:6px;border-radius:99px;background:linear-gradient(90deg,var(--rose),var(--sand),var(--sage));transition:width 0.65s cubic-bezier(0.16,1,0.3,1);}
+
+  /* QUIZ */
+  .q-card{background:var(--card);border-radius:24px;padding:24px 22px 20px;box-shadow:0 10px 36px rgba(180,140,110,0.12);border:1px solid var(--border);backdrop-filter:blur(10px);margin-bottom:14px;width:100%;max-width:450px;}
+  .q-num{color:var(--rose);font-size:10px;letter-spacing:0.2em;font-weight:700;margin-bottom:7px;}
+  .q-text{font-size:1.02rem;font-weight:700;line-height:1.7;color:var(--text);}
+  .choices{display:flex;flex-direction:column;gap:9px;width:100%;max-width:450px;}
+  .choice-btn{width:100%;text-align:left;background:var(--card);border:2px solid var(--border);border-radius:16px;padding:13px 16px;color:var(--text);font-size:0.86rem;font-weight:500;line-height:1.6;transition:all 0.22s ease;box-shadow:0 2px 6px rgba(180,140,110,0.07);}
+  .choice-btn:hover{border-color:var(--blush);background:rgba(232,180,184,0.1);transform:translateX(3px);}
+  .choice-alpha{font-size:0.75rem;font-weight:700;margin-right:8px;opacity:0.4;}
+
+  /* RESULT */
+  .result-wrap{width:100%;max-width:470px;}
+  .result-hero{background:var(--card);border-radius:28px 28px 0 0;padding:32px 26px 26px;text-align:center;border:1px solid var(--border);border-bottom:none;box-shadow:0 -2px 30px rgba(180,140,110,0.08);}
+  .result-emoji{font-size:58px;display:block;margin-bottom:12px;animation:float 4s ease-in-out infinite;}
+  .result-badge{display:inline-block;font-size:9px;letter-spacing:0.18em;font-weight:700;padding:5px 15px;border-radius:99px;margin-bottom:11px;color:white;}
+  .result-name{font-size:clamp(1.3rem,5.5vw,1.8rem);font-weight:700;color:var(--text);line-height:1.3;margin-bottom:7px;}
+  .result-tagline{color:var(--text-lt);font-size:0.8rem;}
+  .result-sec{background:var(--card);padding:22px 22px;border-left:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+  .result-sec:last-child{border-radius:0 0 28px 28px;}
+  .sec-title{display:flex;align-items:center;gap:7px;font-size:0.73rem;font-weight:700;letter-spacing:0.12em;margin-bottom:13px;}
+  .sec-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+  .result-desc{color:var(--text);font-size:0.845rem;line-height:1.9;}
+  .tip-item{display:flex;align-items:flex-start;gap:11px;font-size:0.83rem;color:var(--text);line-height:1.7;padding:9px 0;border-bottom:1px solid rgba(180,150,130,0.1);}
+  .tip-item:last-child{border-bottom:none;}
+  .tip-num{flex-shrink:0;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;margin-top:3px;color:white;}
+
+  /* ROUTINE */
+  .routine-grid{display:flex;flex-direction:column;gap:9px;}
+  .routine-slot{display:flex;align-items:flex-start;gap:11px;background:var(--warm);border-radius:13px;padding:12px 13px;}
+  .routine-time{flex-shrink:0;font-size:0.67rem;font-weight:700;letter-spacing:0.08em;padding:4px 9px;border-radius:99px;color:white;margin-top:2px;white-space:nowrap;}
+  .routine-action{font-size:0.82rem;line-height:1.65;color:var(--text);}
+  .routine-action strong{font-weight:700;display:block;margin-bottom:2px;font-size:0.77rem;}
+
+  /* CTA */
+  .cta-btn{display:block;width:100%;text-align:center;font-weight:700;font-size:0.91rem;color:white;padding:16px 20px;border-radius:18px;box-shadow:0 7px 24px rgba(180,120,120,0.28);transition:all 0.3s ease;letter-spacing:0.03em;line-height:1.45;border:none;cursor:pointer;}
+  .cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(180,120,120,0.36);}
+  .cta-sub{font-size:0.7rem;opacity:0.82;display:block;margin-top:3px;}
+  .retry-btn{display:block;width:100%;margin-top:11px;text-align:center;font-weight:600;font-size:0.85rem;color:var(--text-lt);padding:12px;border:1.5px solid var(--border);border-radius:14px;background:white;transition:all 0.2s;cursor:pointer;}
+  .retry-btn:hover{background:var(--warm);border-color:var(--blush);color:var(--text);}
+
+  .confetti-piece{position:fixed;pointer-events:none;z-index:999;animation:confetti 1.3s ease-out both;border-radius:3px;}
 </style>
 </head>
 <body>
-<div id="root"></div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+<div id="app"></div>
 <script>
-const { useState, useEffect } = React;
-
 const TYPES = {
-  survivor: {
-    id:"survivor", label:"実践サバイバー型", emoji:"⚡", color:"#FF6B35", tagline:"即戦力重視・フレーズ暗記派",
-    description:"あなたはとにかく「使える英語」を求める行動派！旅行・仕事・日常シーンで即役立つフレーズを身体で覚えるのが得意です。完璧な文法より「伝わること」を優先し、失敗を恐れずどんどん話せるポテンシャルを持っています。",
-    tips:["📱 Duolingo・Ankiで毎日5分フレーズ暗記","🎙️ シャドーイングで口を慣らす（NHKラジオ英会話が◎）","✈️ ハロートーク等で海外の人と短文チャット","🗒️ 「使いたいフレーズ帳」を作ってすぐ見返す"],
-  },
-  analyst: {
-    id:"analyst", label:"理論アナリスト型", emoji:"🔬", color:"#4A90D9", tagline:"文法重視・論理理解派",
-    description:"あなたは「なぜそう言うのか」を理解してから進む知的な学習者。文法の仕組みを把握することで応用力が高まり、読む・書く力に特に強みが出ます。一度理解した知識は長く定着するタイプです。",
-    tips:["📚 「一億人の英文法」など体系的な文法書を熟読","🗞️ BBC / The Economist で精読練習","✍️ 英文ライティングの添削（HiNative・Lang-8）","🧩 語源・派生語を辞書で深掘りする習慣を"],
-  },
-  immersion: {
-    id:"immersion", label:"没入イマージョン型", emoji:"🌊", color:"#2ECC71", tagline:"エンタメ重視・自然吸収派",
-    description:"あなたは好きなコンテンツを通じて自然に英語を吸収するセンス派！ドラマ・音楽・ゲームが学習ツールになります。量を浴び続けることでリスニング力とボキャブラリーが自然と伸びていきます。",
-    tips:["🎬 Netflixを英語字幕→字幕なしで段階的に視聴","🎵 好きな洋楽の歌詞を追いながら聴く","🎮 ゲームやYouTubeを英語UIに切り替える","📖 好きなジャンルの洋書ペーパーバックに挑戦"],
-  },
-  catalyst: {
-    id:"catalyst", label:"社交カタリスト型", emoji:"🔥", color:"#9B59B6", tagline:"交流重視・アウトプット派",
-    description:"あなたは人とのつながりからエネルギーを得る社交型学習者！英語を「人と話すためのツール」として捉え、アウトプットの機会が増えるほど上達が加速します。オンライン英会話やコミュニティが最高の教材です。",
-    tips:["💬 Cambly・DMM英会話で毎日25分フリートーク","🌐 Meetupで外国人参加のイベントに参加","📣 英語SNS（X・Reddit）で発信を習慣化","🤝 英語学習コミュニティで仲間を作る"],
-  },
+  sukima:{id:'sukima',label:'スキマ時短派',emoji:'⏱️',color:'#C9848A',colorLight:'#F5E4E5',tagline:'すき間時間を英語に変えるプロ',lpUrl:'https://www.maho-shadowing-club.com/landing-202503vlog',lpText:'📱 すき間時間でOK！シャドーイング講座を見てみる',lpSub:'無料体験あり・1日10分から始められます',description:'忙しい毎日の中でも、ちょっとした時間を上手に使う天才タイプ♪「まとまった時間がないと無理」なんて思わなくて大丈夫。3分・5分のスキマ時間を積み重ねるだけで、着実に英語力が育っていきます。継続は力なり、があなたの一番の武器です！',tips:['🎧 通勤・家事中にポッドキャストを流す','📲 アプリ通知をON！1日1レッスンを習慣化','🚿 シャワー中に昨日のフレーズを声に出して復唱','📖 トイレに単語カードを貼って「ながら暗記」'],routine:{am:{title:'通勤・朝支度の5分',action:'身支度しながら英語ポッドキャストを聴き流し。今日の1フレーズだけ心に残す'},noon:{title:'ランチタイムの5分',action:'アプリで単語5個に触れる。答えを見ても◎。「知ってる！」の積み重ねが大事'},pm:{title:'寝かしつけ後の5分',action:'今日聴いたフレーズを1つ思い出してノートにメモ。「今日もできた♪」を味わう'}}},
+  kiso:{id:'kiso',label:'ゼロから基礎固め派',emoji:'📚',color:'#8EA89A',colorLight:'#DDE9E4',tagline:'丁寧に積み上げて本物の力をつける',lpUrl:'https://www.maho-shadowing-club.com/landing-202503-83',lpText:'📖 基礎からしっかり！発音＆シャドーイング講座を見てみる',lpSub:'英語が苦手でも大丈夫・ゼロからスタートできます',description:'「英語って難しそう…」と思いながらも、きちんと理解して進みたいあなたへ。焦らずじっくり基礎を固める姿勢は、実はいちばんの近道。土台がしっかりしていれば、あとで応用がすいすい伸びていきます。着実な歩みを大切に！',tips:['📗 中学英語の薄い参考書から始める','🔤 発音記号に慣れて辞書を引く楽しさを覚える','✍️ 短い日記（1文でもOK）を毎日英語で書く','🎵 童謡・簡単な洋楽で耳と口を慣らす'],routine:{am:{title:'起床後の5分',action:'参考書を1ページだけ開く。「へぇ、そういうことか」を毎朝1つ発見する'},noon:{title:'昼休みの5分',action:'今日覚えた単語を使って、頭の中で短い英文を作ってみる（口に出しても◎）'},pm:{title:'寝る前の5分',action:'今日学んだことを手帳に一言メモ。明日の自分へのご褒美ノートを育てる'}}},
+  vlog:{id:'vlog',label:'チャンクVlog派',emoji:'🎬',color:'#A898C0',colorLight:'#E4DDEF',tagline:'好きなコンテンツで英語をまるごと吸収',lpUrl:'https://www.maho-shadowing-club.com/landing-202503vlog',lpText:'🎬 Vlog英語でリスニング力UP！シャドーイング講座を見てみる',lpSub:'好きな動画を教材に・楽しく続けられる方法',description:'ドラマ・YouTube・Vlogが大好きなあなたは、エンタメを通じて英語を自然に吸収できる才能の持ち主。「勉強している感」なしに英語が耳に馴染んでいくのがこのタイプの特徴。好きなコンテンツが最高の教科書になります！',tips:['🎥 好きなYouTuberの動画を英語字幕で見る','🗣️ お気に入りのセリフをそのままマネして繰り返す','📝 「今日のキーフレーズ」を動画から1つだけメモ','🎭 家事をしながら英語Vlogをかけ流し'],routine:{am:{title:'朝の準備中5分',action:'昨日見た動画のお気に入りフレーズを口ずさみながら身支度。鏡の前でプチ英語タイム♪'},noon:{title:'ランチの5分',action:'短い英語Vlogを1本視聴。字幕あり・なし両方試してみる'},pm:{title:'夜リラックスの5分',action:'今日覚えたフレーズを声に出して3回リピート。シャドーイング練習にもなる'}}},
+  community:{id:'community',label:'コミュニティ派',emoji:'🌸',color:'#C9848A',colorLight:'#F5E4E5',tagline:'仲間と一緒だから続けられる',lpUrl:'https://www.maho-shadowing-club.com/landing-vlog-55',lpText:'🌸 仲間と楽しく続ける！英語コミュニティを見てみる',lpSub:'ママ・女性限定のあたたかいコミュニティです',description:'「一人だと続かない…」と感じるあなたは、実はコミュニティ型学習が最も合っています。誰かと一緒に取り組むことで、モチベーションも理解力もグンと上がる。英語仲間を作ることが、学習の一番の近道かもしれません♪',tips:['👭 SNSで英語学習仲間をフォローして互いに応援','📣 Instagramに「今日の英語」を投稿して楽しむ','☕ ママ友とオンライン英語カフェ会を開く','🤝 英語学習コミュニティで週1回チャット発信'],routine:{am:{title:'朝のSNSチェック5分',action:'英語学習仲間の投稿にいいね＆コメント（英語で！）。朝から英語脳をONに'},noon:{title:'ランチタイム5分',action:'今日学んだことをSNSに投稿。「今日の英語：〇〇！」の一言発信を続ける'},pm:{title:'夜のコミュニティ時間5分',action:'グループチャットで今日の学びをシェア。仲間の投稿に返事を書く（英語でもOK）'}}},
+  tokkyu:{id:'tokkyu',label:'タイパ特急派',emoji:'🚄',color:'#C4A882',colorLight:'#EFE2CC',tagline:'効率よく最短ルートで成果を出す行動派',lpUrl:'https://www.maho-shadowing-club.com/landing-vlog-55',lpText:'🚄 最短ルートで英語力UP！効率派のための講座を見てみる',lpSub:'忙しい中でも成果が出る・コスパ最強メソッド',description:'「やるからには効率よく！」が口グセのあなた。タイパ意識の高い学習スタイルで、短期間でも確実に前進できます。目標を明確にして、必要なことだけに集中する戦略家タイプ。無駄を省いてぐんぐん伸びていきます！',tips:['🎯 目標（いつまでに何ができるか）を手帳に書く','⚡ シャドーイングで「聴く・話す」を同時に鍛える','📊 週1回、自分の進捗を振り返る5分ログをつける','🎙️ Youglishで単語のリアル音声を確認'],routine:{am:{title:'朝の集中5分',action:'今週の目標フレーズ3つを音読。声に出すことで記憶定着率UP。朝イチが最もゴールデン'},noon:{title:'ランチ後5分',action:'シャドーイング音源を流してついていく練習。1回でOK、完璧を求めない'},pm:{title:'夜の5分振り返り',action:'今日できたことを1つ書き出す。「また明日やろう」という前向きな終わり方を'}}},
+  nagara:{id:'nagara',label:'ながら聴き派',emoji:'🎧',color:'#8EA89A',colorLight:'#DDE9E4',tagline:'耳からインプット・生活に英語を溶け込ませる',lpUrl:'https://www.maho-shadowing-club.com/landing-202503vlog',lpText:'🎧 聴くだけで英語耳に！シャドーイング講座を見てみる',lpSub:'家事・育児の合間に続けられる・耳から始める英語',description:'「座って勉強するより、動きながらのほうが集中できる！」そんなあなたは、ながら学習が天職。家事・育児・お散歩中に英語を流すだけで、じわじわとリスニング力と感覚が育っていきます。生活そのものが英語教室になる！',tips:['🍳 料理・洗い物中に英語ラジオ・ポッドキャストをかける','🚶 お散歩・買い物中にイヤホンで英語を流す','👶 子どもと一緒に英語の絵本CDや童謡を流す','🌙 就寝前にリラックス英語ナレーションを聴く'],routine:{am:{title:'朝の家事5分',action:'朝食準備をしながら英語ポッドキャストをBGMに。今日の1フレーズを耳でキャッチ'},noon:{title:'お昼のながら5分',action:'子どものお昼寝・遊び中に英語を流す。「あ、知ってる！」という瞬間が増えてくる'},pm:{title:'夜のリラックス5分',action:'お風呂上がりにリラックス英語を聴きながら保湿タイム。心も体も英語も整う♪'}}},
+  global:{id:'global',label:'グローバル準備派',emoji:'✈️',color:'#A898C0',colorLight:'#E4DDEF',tagline:'海外・国際的な場面に向けて着々と準備中',lpUrl:'https://www.maho-shadowing-club.com/landing-202503-83',lpText:'✈️ 旅行・海外移住に備える！実践英語講座を見てみる',lpSub:'リアルな英語が身につく・海外で通じる話せる英語へ',description:'海外旅行・子どもの英語教育・将来の移住やキャリアアップを見据えて英語を学ぶ、意欲的で視野の広いあなた。明確なゴールがあるから、学習に迷いがありません。「使える英語」を着実に身につけて、描いている未来を現実にしていきましょう！',tips:['🌏 目標（旅行先・海外生活）の情報を英語で調べる習慣を','✈️ シーン別フレーズ集（旅行・空港）を作る','🎙️ オンライン英会話で週1回外国人と話してみる','📺 旅行系YouTubeを英語音声で視聴'],routine:{am:{title:'朝の目標確認5分',action:'行きたい場所・したいことを英語で1文日記に書く。「I want to 〇〇.」からスタート！'},noon:{title:'ランチの5分',action:'今日の英語ニュースを1記事だけ眺める。分からなくても流れをつかむ練習'},pm:{title:'夜のイメトレ5分',action:'海外で使いそうな場面を想像しながら、今日覚えたフレーズを声に出してリハーサル'}}},
+  jibun:{id:'jibun',label:'自分磨き派',emoji:'💎',color:'#C4A882',colorLight:'#EFE2CC',tagline:'英語を通じて自分らしい豊かな人生を描く',lpUrl:'https://www.maho-shadowing-club.com/landing-vlog-55',lpText:'💎 自分磨きに英語をプラス！女性のための英語講座を見てみる',lpSub:'自信が持てる・人生が広がる・あなたらしく輝く英語',description:'英語を「ツール」としてだけでなく、自分の世界を広げるための「翼」として捉えているあなた。知的好奇心が旺盛で、英語を通じて得られる体験や出会いにワクワクしているはず。その感性があれば、英語は必ずあなたの人生を豊かにしてくれます！',tips:['📓 好きな洋書・絵本・エッセイを少しずつ読む','🌺 英語で日記やジャーナリングをして自分を表現','🎨 好きな分野（料理・アート）を英語で学ぶ','🫶 英語を通じた新しいコミュニティに飛び込む'],routine:{am:{title:'朝の自分時間5分',action:'コーヒーを飲みながら英語ジャーナリング。「Today I feel...」から始める気持ちのよい朝を'},noon:{title:'昼のインプット5分',action:'好きなジャンルの英語コンテンツ（レシピ・ファッション）を1つ眺める'},pm:{title:'夜の振り返り5分',action:'今日の英語体験で「素敵だな」と思ったことを手帳に。英語が日常の彩りに変わっていく'}}}
 };
 
-const QUESTIONS = [
-  { id:1, text:"英語がペラペラになったら、まず何がしたい？", choices:[
-    {label:"一人で海外旅行して自由に動き回りたい", type:"survivor"},
-    {label:"原書・論文をスラスラ読んで知識を深めたい", type:"analyst"},
-    {label:"外国人の友だちをたくさん作りたい", type:"catalyst"},
+const QUESTIONS=[
+  {id:1,text:'英語ができるようになったら、いちばんやってみたいことは？',choices:[
+    {label:'海外ひとり旅を思いっきり楽しみたい',type:'tokkyu'},
+    {label:'子どもと一緒に英語で絵本を読んであげたい',type:'kiso'},
+    {label:'外国人のお友だちをつくってワイワイしたい',type:'community'},
+    {label:'好きな海外Vlogを字幕なしで楽しみたい',type:'vlog'},
   ]},
-  { id:2, text:"英語の勉強でいちばん続けやすいのは？", choices:[
-    {label:"アプリで単語・フレーズを毎日コツコツ", type:"survivor"},
-    {label:"文法書や参考書を読み込む", type:"analyst"},
-    {label:"海外ドラマや音楽を楽しみながら", type:"immersion"},
-    {label:"オンライン英会話で実際に話す", type:"catalyst"},
+  {id:2,text:'英語の勉強、どんな時なら無理なく続けられそう？',choices:[
+    {label:'家事や育児のスキマ時間をうまく使いたい',type:'sukima'},
+    {label:'まず基礎からじっくり理解してから進みたい',type:'kiso'},
+    {label:'ドラマや音楽など好きなもので楽しみながら',type:'vlog'},
+    {label:'仲間や誰かと一緒に取り組みたい',type:'community'},
   ]},
-  { id:3, text:"知らない英単語に出会ったとき、あなたは？", choices:[
-    {label:"文脈からなんとなく推測してスルー", type:"immersion"},
-    {label:"すぐ辞書で意味・語源まで調べる", type:"analyst"},
-    {label:"フレーズごと丸暗記してしまう", type:"survivor"},
-    {label:"ネイティブの友人に聞いてみる", type:"catalyst"},
+  {id:3,text:'英語を使いたいシーン、どれが一番近い？',choices:[
+    {label:'海外旅行や将来の移住・子どもの留学に備えたい',type:'global'},
+    {label:'仕事やキャリアアップに活かしたい（最短で）',type:'tokkyu'},
+    {label:'毎日の生活を英語でより豊かにしたい',type:'jibun'},
+    {label:'家にいながら耳から自然に英語を身につけたい',type:'nagara'},
   ]},
-  { id:4, text:"英語学習のモチベが上がるのはどんな時？", choices:[
-    {label:"外国人に「上手！」と褒められた瞬間", type:"catalyst"},
-    {label:"文法の謎が解けてスッキリした瞬間", type:"analyst"},
-    {label:"好きな作品を英語で理解できた瞬間", type:"immersion"},
+  {id:4,text:'英語の勉強でモチベが上がる瞬間は？',choices:[
+    {label:'海外の人と話せた！伝わった！という体験',type:'tokkyu'},
+    {label:'仲間に「上手くなったね」と言ってもらえた時',type:'community'},
+    {label:'好きな動画やドラマのセリフが聞き取れた時',type:'vlog'},
+    {label:'コツコツ続けてきたことが積み重なっている実感',type:'sukima'},
   ]},
-  { id:5, text:"理想の英語学習スタイルに近いのは？", choices:[
-    {label:"短期集中！旅行前に必要フレーズだけ詰め込む", type:"survivor"},
-    {label:"週1回ペースで文法を体系的に学ぶ", type:"analyst"},
-    {label:"毎日英語コンテンツに浸る生活を送る", type:"immersion"},
-    {label:"毎週ネイティブと会話して慣れていく", type:"catalyst"},
+  {id:5,text:'あなたの毎日、英語に使える時間はどのくらい？',choices:[
+    {label:'5〜10分くらい。スキマ時間を活用したい',type:'sukima'},
+    {label:'30分くらいは集中できる時間を作りたい',type:'kiso'},
+    {label:'料理や家事の「ながら時間」なら使える',type:'nagara'},
+    {label:'好きなことなら時間を忘れて取り組める',type:'jibun'},
+  ]},
+  {id:6,text:'英語を学ぶ上で、自分に一番近いと思うのは？',choices:[
+    {label:'効率よく結果を出したい！タイパ重視',type:'tokkyu'},
+    {label:'海外や国際的な場面に向けて準備したい',type:'global'},
+    {label:'英語で自分の世界を広げて豊かに生きたい',type:'jibun'},
+    {label:'まずは基礎からひとつずつ丁寧に学びたい',type:'kiso'},
   ]},
 ];
 
-function calcResult(answers) {
-  const score = {survivor:0,analyst:0,immersion:0,catalyst:0};
-  answers.forEach(t => { if(t) score[t]++; });
-  return Object.entries(score).sort((a,b)=>b[1]-a[1])[0][0];
+function calcResult(ans){
+  const s={};Object.keys(TYPES).forEach(k=>s[k]=0);
+  ans.forEach(t=>{if(t&&s[t]!==undefined)s[t]++;});
+  return Object.entries(s).sort((a,b)=>b[1]-a[1])[0][0];
 }
 
-function ProgressBar({current,total}) {
-  const pct = Math.round(current/total*100);
-  return React.createElement('div',{style:{width:'100%',marginBottom:20}},
-    React.createElement('div',{style:{display:'flex',justifyContent:'space-between',fontSize:11,color:'rgba(255,255,255,0.45)',marginBottom:6}},
-      React.createElement('span',null,`Q${current} / ${total}`),
-      React.createElement('span',null,`${pct}%`)
-    ),
-    React.createElement('div',{style:{height:6,borderRadius:99,background:'rgba(255,255,255,0.1)',overflow:'hidden'}},
-      React.createElement('div',{style:{height:6,borderRadius:99,width:`${pct}%`,background:'linear-gradient(90deg,#FF6B35,#9B59B6)',transition:'width 0.7s cubic-bezier(0.16,1,0.3,1)'}})
-    )
-  );
-}
-
-function StartScreen({onStart}) {
-  return React.createElement('div',{
-    className:'fade-in',
-    style:{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'100vh',padding:'40px 24px',background:'linear-gradient(135deg,#0f0c29,#302b63,#24243e)',position:'relative',overflow:'hidden'}
-  },
-    React.createElement('div',{style:{position:'absolute',top:'-15%',right:'-15%',width:320,height:320,borderRadius:'50%',background:'radial-gradient(circle,rgba(255,107,53,0.2) 0%,transparent 70%)',pointerEvents:'none'}}),
-    React.createElement('div',{style:{position:'absolute',bottom:'-10%',left:'-10%',width:260,height:260,borderRadius:'50%',background:'radial-gradient(circle,rgba(155,89,182,0.25) 0%,transparent 70%)',pointerEvents:'none'}}),
-    React.createElement('div',{style:{textAlign:'center',maxWidth:360,position:'relative',zIndex:1}},
-      React.createElement('div',{className:'pulse-glow',style:{fontSize:64,marginBottom:20}}, '🧭'),
-      React.createElement('h1',{style:{color:'white',fontWeight:900,fontSize:'clamp(1.6rem,6vw,2.4rem)',lineHeight:1.25,letterSpacing:'-0.02em',marginBottom:12,fontFamily:'Georgia,serif'}},
-        'あなたの英語学習\nタイプは？'
-      ),
-      React.createElement('p',{style:{color:'rgba(255,255,255,0.45)',fontSize:10,letterSpacing:'0.2em',marginBottom:8}},'ENGLISH LEARNER TYPE TEST'),
-      React.createElement('p',{style:{color:'rgba(255,255,255,0.65)',lineHeight:1.85,fontSize:'0.9rem',marginBottom:36}},
-        '5つの質問に答えるだけで、あなたに\nぴったりの英語学習スタイルがわかります。'
-      ),
-      React.createElement('button',{
-        onClick:onStart,
-        style:{background:'linear-gradient(135deg,#FF6B35,#9B59B6)',color:'white',fontWeight:700,fontSize:'1rem',padding:'14px 40px',borderRadius:20,boxShadow:'0 8px 32px rgba(255,107,53,0.4)',letterSpacing:'0.05em',transition:'transform 0.2s',cursor:'pointer',border:'none'},
-        onMouseEnter:e=>e.target.style.transform='scale(1.05)',
-        onMouseLeave:e=>e.target.style.transform='scale(1)',
-      }, '診断を始める →'),
-      React.createElement('div',{style:{display:'flex',justifyContent:'center',gap:24,marginTop:32}},
-        Object.values(TYPES).map(t=>
-          React.createElement('div',{key:t.id,style:{display:'flex',flexDirection:'column',alignItems:'center',gap:4}},
-            React.createElement('span',{style:{fontSize:24}}),
-            React.createElement('span',{style:{fontSize:10,color:'rgba(255,255,255,0.3)'}},t.emoji)
-          )
-        )
-      )
-    )
-  );
-}
-
-function QuestionScreen({question,qIndex,total,onAnswer}) {
-  const [chosen,setChosen] = useState(null);
-  const [animating,setAnimating] = useState(false);
-  const [visible,setVisible] = useState(false);
-
-  useEffect(()=>{ setChosen(null); setVisible(false); setTimeout(()=>setVisible(true),50); },[question.id]);
-
-  function handleChoose(choice) {
-    if(animating||chosen) return;
-    setChosen(choice.type);
-    setAnimating(true);
-    setTimeout(()=>{ onAnswer(choice.type); setAnimating(false); },400);
+function spawnConfetti(color){
+  const cols=[color,'#E8B4B8','#DEC9A8','#B8CCBF','#C8BCDA'];
+  for(let i=0;i<16;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    const w=6+Math.random()*7;
+    el.style.cssText=`left:${15+Math.random()*70}%;top:${5+Math.random()*35}%;background:${cols[i%cols.length]};width:${w}px;height:${w}px;border-radius:${Math.random()>.5?'50%':'3px'};animation-delay:${Math.random()*.4}s;animation-duration:${1+Math.random()*.7}s;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),2200);
   }
-
-  const labels = ['A','B','C','D'];
-  return React.createElement('div',{
-    style:{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'100vh',padding:'32px 20px',background:'linear-gradient(135deg,#0f0c29,#302b63,#24243e)'}
-  },
-    React.createElement('div',{
-      style:{width:'100%',maxWidth:420,opacity:visible?1:0,transform:visible?'translateY(0)':'translateY(16px)',transition:'all 0.5s cubic-bezier(0.16,1,0.3,1)'}
-    },
-      React.createElement(ProgressBar,{current:qIndex+1,total}),
-      React.createElement('div',{style:{borderRadius:24,padding:'24px 24px 20px',marginBottom:16,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',backdropFilter:'blur(10px)'}},
-        React.createElement('p',{style:{color:'rgba(255,255,255,0.4)',fontSize:11,letterSpacing:'0.2em',marginBottom:8}},`Q${question.id}`),
-        React.createElement('h2',{style:{color:'white',fontWeight:700,fontSize:'1.1rem',lineHeight:1.65,fontFamily:'Georgia,serif'}},question.text)
-      ),
-      React.createElement('div',{style:{display:'flex',flexDirection:'column',gap:10}},
-        question.choices.map((choice,i)=>{
-          const t = TYPES[choice.type];
-          const isChosen = chosen===choice.type;
-          return React.createElement('button',{
-            key:i,
-            onClick:()=>handleChoose(choice),
-            disabled:!!animating,
-            style:{
-              width:'100%',textAlign:'left',borderRadius:18,padding:'14px 18px',
-              background:isChosen?`linear-gradient(135deg,${t.color}22,${t.color}44)`:'rgba(255,255,255,0.06)',
-              border:`2px solid ${isChosen?t.color:'rgba(255,255,255,0.1)'}`,
-              color:'white',fontSize:'0.9rem',fontWeight:500,lineHeight:1.5,
-              transform:isChosen?'scale(1.02)':'scale(1)',
-              boxShadow:isChosen?`0 4px 20px ${t.color}44`:'none',
-              transition:'all 0.25s ease',cursor:'pointer',
-            }
-          },
-            React.createElement('span',{style:{color:isChosen?t.color:'rgba(255,255,255,0.35)',marginRight:10,fontSize:'0.8rem',fontWeight:700}},labels[i]),
-            choice.label
-          );
-        })
-      )
-    )
-  );
 }
 
-function ResultScreen({resultKey,onRetry}) {
-  const t = TYPES[resultKey];
-  const [visible,setVisible] = useState(false);
-  useEffect(()=>{ setTimeout(()=>setVisible(true),80); },[]);
+let phase='start',qIdx=0,answers=[],resultKey=null;
 
-  return React.createElement('div',{
-    style:{display:'flex',flexDirection:'column',alignItems:'center',minHeight:'100vh',padding:'40px 20px 60px',background:'linear-gradient(135deg,#0f0c29,#302b63,#24243e)',position:'relative',overflow:'hidden'}
-  },
-    React.createElement('div',{style:{position:'fixed',top:'20%',left:'50%',transform:'translateX(-50%)',width:400,height:400,borderRadius:'50%',background:`radial-gradient(circle,${t.color}22 0%,transparent 70%)`,pointerEvents:'none'}}),
-    React.createElement('div',{
-      style:{width:'100%',maxWidth:440,opacity:visible?1:0,transform:visible?'translateY(0)':'translateY(28px)',transition:'all 0.7s cubic-bezier(0.16,1,0.3,1)',position:'relative',zIndex:1}
-    },
-      // header
-      React.createElement('div',{style:{textAlign:'center',marginBottom:28}},
-        React.createElement('div',{style:{fontSize:64,marginBottom:12,filter:`drop-shadow(0 0 28px ${t.color}99)`}},t.emoji),
-        React.createElement('div',{style:{color:'rgba(255,255,255,0.4)',fontSize:10,letterSpacing:'0.25em',marginBottom:6}},'YOUR TYPE'),
-        React.createElement('h2',{style:{color:'white',fontWeight:900,fontSize:'clamp(1.4rem,6vw,2rem)',fontFamily:'Georgia,serif',marginBottom:10}},t.label),
-        React.createElement('span',{style:{display:'inline-block',padding:'6px 18px',borderRadius:999,fontSize:'0.78rem',fontWeight:600,background:`${t.color}22`,color:t.color,border:`1px solid ${t.color}44`}},t.tagline)
-      ),
-      // desc
-      React.createElement('div',{style:{borderRadius:24,padding:22,marginBottom:14,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)'}},
-        React.createElement('h3',{style:{color:t.color,fontWeight:700,fontSize:'0.75rem',letterSpacing:'0.2em',marginBottom:12}}, '✦ あなたの特徴'),
-        React.createElement('p',{style:{color:'rgba(255,255,255,0.8)',lineHeight:1.9,fontSize:'0.88rem'}},t.description)
-      ),
-      // tips
-      React.createElement('div',{style:{borderRadius:24,padding:22,marginBottom:24,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)'}},
-        React.createElement('h3',{style:{color:t.color,fontWeight:700,fontSize:'0.75rem',letterSpacing:'0.2em',marginBottom:14}}, '✦ おすすめ学習アクション'),
-        React.createElement('ul',{style:{listStyle:'none',display:'flex',flexDirection:'column',gap:12}},
-          t.tips.map((tip,i)=>
-            React.createElement('li',{key:i,style:{display:'flex',alignItems:'flex-start',gap:12,color:'rgba(255,255,255,0.8)',fontSize:'0.87rem',lineHeight:1.7}},
-              React.createElement('span',{style:{flexShrink:0,width:22,height:22,borderRadius:'50%',background:`${t.color}33`,color:t.color,fontSize:'0.7rem',fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',marginTop:2}},i+1),
-              tip
-            )
-          )
-        )
-      ),
-      // retry
-      React.createElement('button',{
-        onClick:onRetry,
-        style:{width:'100%',borderRadius:18,padding:'15px',fontWeight:700,fontSize:'1rem',color:'white',background:`linear-gradient(135deg,${t.color},#9B59B6)`,boxShadow:`0 8px 32px ${t.color}44`,border:'none',cursor:'pointer',marginBottom:16,transition:'transform 0.2s'},
-        onMouseEnter:e=>e.currentTarget.style.transform='scale(1.03)',
-        onMouseLeave:e=>e.currentTarget.style.transform='scale(1)',
-      }, 'もう一度診断する 🔄'),
-      React.createElement('div',{style:{display:'flex',gap:10}},
-        Object.values(TYPES).filter(x=>x.id!==resultKey).map(other=>
-          React.createElement('div',{key:other.id,style:{flex:1,borderRadius:16,padding:'12px 8px',textAlign:'center',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)'}},
-            React.createElement('div',{style:{fontSize:22,marginBottom:4}},other.emoji),
-            React.createElement('div',{style:{color:'rgba(255,255,255,0.35)',fontSize:'0.6rem'}},other.label)
-          )
-        )
-      ),
-      React.createElement('p',{style:{color:'rgba(255,255,255,0.25)',fontSize:'0.6rem',textAlign:'center',marginTop:8}},'他のタイプ')
-    )
-  );
+function render(){
+  const app=document.getElementById('app');
+  if(phase==='start')app.innerHTML=renderStart();
+  if(phase==='quiz'){app.innerHTML=renderQuiz();bindQuiz();}
+  if(phase==='result'){app.innerHTML=renderResult();setTimeout(()=>spawnConfetti(TYPES[resultKey].color),350);}
 }
 
-function App() {
-  const [phase,setPhase] = useState('start');
-  const [qIndex,setQIndex] = useState(0);
-  const [answers,setAnswers] = useState([]);
-
-  function handleStart(){ setPhase('quiz'); setQIndex(0); setAnswers([]); }
-  function handleAnswer(type){
-    const next=[...answers,type];
-    setAnswers(next);
-    if(qIndex+1<QUESTIONS.length){ setQIndex(qIndex+1); }
-    else{ setPhase('result'); }
-  }
-  function handleRetry(){ setPhase('start'); setAnswers([]); setQIndex(0); }
-
-  if(phase==='start') return React.createElement(StartScreen,{onStart:handleStart});
-  if(phase==='quiz') return React.createElement(QuestionScreen,{question:QUESTIONS[qIndex],qIndex,total:QUESTIONS.length,onAnswer:handleAnswer});
-  return React.createElement(ResultScreen,{resultKey:calcResult(answers),onRetry:handleRetry});
+function renderStart(){
+  const chips=Object.values(TYPES).map(t=>`<div class="chip">${t.emoji} ${t.label}</div>`).join('');
+  return`<div class="screen fade-in"><div class="start-card fade-up"><span class="start-hero">🌿</span><span class="start-tag">ENGLISH TYPE CHECK</span><h1 class="start-title">あなたの英語学習スタイル<br>診断してみませんか？</h1><p class="start-sub">忙しいママでも続けられる英語の学び方は<br>人それぞれ。6つの質問に答えるだけで<br>あなたにぴったりのタイプがわかります♪</p><button class="start-btn" onclick="startQuiz()">✨ 診断スタート ✨</button><div class="type-chips">${chips}</div></div></div>`;
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+function renderQuiz(){
+  const q=QUESTIONS[qIdx];
+  const pct=Math.round(qIdx/QUESTIONS.length*100);
+  const lbls=['A','B','C','D'];
+  const choices=q.choices.map((c,i)=>`<button class="choice-btn fade-up" style="animation-delay:${.07*i}s" data-type="${c.type}"><span class="choice-alpha">${lbls[i]}</span>${c.label}</button>`).join('');
+  return`<div class="screen"><div class="prog-wrap fade-up"><div class="prog-meta"><span>Q${qIdx+1} / ${QUESTIONS.length}</span><span>${pct}%</span></div><div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div></div><div class="q-card fade-up" style="animation-delay:.05s"><p class="q-num">Question ${qIdx+1}</p><h2 class="q-text">${q.text}</h2></div><div class="choices">${choices}</div></div>`;
+}
+
+function bindQuiz(){
+  document.querySelectorAll('.choice-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(btn.dataset.locked)return;
+      btn.dataset.locked='1';
+      const t=TYPES[btn.dataset.type];
+      btn.style.background=t.colorLight;btn.style.borderColor=t.color;btn.style.color=t.color;
+      setTimeout(()=>{
+        answers.push(btn.dataset.type);
+        if(qIdx+1<QUESTIONS.length){qIdx++;render();}
+        else{resultKey=calcResult(answers);phase='result';render();}
+      },360);
+    });
+  });
+}
+
+function renderResult(){
+  const t=TYPES[resultKey];
+  const tips=t.tips.map((tip,i)=>`<div class="tip-item" style="animation-delay:${.1*i}s"><span class="tip-num" style="background:${t.color}">${i+1}</span><span>${tip}</span></div>`).join('');
+  const slots=[
+    {key:'am',label:'🌅 朝',bg:t.color},
+    {key:'noon',label:'☀️ 昼',bg:t.color+'bb'},
+    {key:'pm',label:'🌙 夜',bg:t.color+'88'},
+  ];
+  const routine=slots.map(s=>`<div class="routine-slot"><span class="routine-time" style="background:${s.bg}">${s.label}</span><div class="routine-action"><strong>${t.routine[s.key].title}</strong>${t.routine[s.key].action}</div></div>`).join('');
+  return`<div class="screen" style="padding:36px 14px 60px;justify-content:flex-start"><div class="result-wrap fade-up">
+    <div class="result-hero"><span class="result-emoji">${t.emoji}</span><span class="result-badge" style="background:${t.color}">${t.tagline}</span><h2 class="result-name">${t.label}</h2><p class="result-tagline">あなたにぴったりの英語スタイルが見つかりました♪</p></div>
+    <div class="result-sec"><div class="sec-title" style="color:${t.color}"><span class="sec-icon" style="background:${t.colorLight}">${t.emoji}</span>あなたの英語タイプの特徴</div><p class="result-desc">${t.description}</p></div>
+    <div class="result-sec"><div class="sec-title" style="color:${t.color}"><span class="sec-icon" style="background:${t.colorLight}">💡</span>おすすめの学習アクション</div>${tips}</div>
+    <div class="result-sec"><div class="sec-title" style="color:${t.color}"><span class="sec-icon" style="background:${t.colorLight}">⏰</span>1日15分のおすすめルーティン</div><div class="routine-grid">${routine}</div></div>
+    <div class="result-sec"><a href="${t.lpUrl}" target="_blank" class="cta-btn" style="background:linear-gradient(135deg,${t.color},${t.color}99,#C8BCDA)">${t.lpText}<span class="cta-sub">${t.lpSub}</span></a><button class="retry-btn" onclick="retryQuiz()">🔄 もう一度診断する</button></div>
+  </div></div>`;
+}
+
+function startQuiz(){phase='quiz';qIdx=0;answers=[];render();}
+function retryQuiz(){phase='start';qIdx=0;answers=[];resultKey=null;render();}
+render();
 </script>
 </body>
 </html>
